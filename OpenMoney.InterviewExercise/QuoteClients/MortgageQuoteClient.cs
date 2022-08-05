@@ -27,13 +27,19 @@ namespace OpenMoney.InterviewExercise.QuoteClients
             {
                 return null;
             }
-            var mortgageAmount = getQuotesRequest.HouseValue - getQuotesRequest.Deposit;
-            var cheapestMonthlyPayment = await GetMonthlyPaymentForCheapestMortgage((decimal)mortgageAmount);
-            
-            return new MortgageQuote
+            try 
             {
-                MonthlyPayment = cheapestMonthlyPayment
-            };
+                var mortgageAmount = getQuotesRequest.HouseValue - getQuotesRequest.Deposit;
+                var cheapestMonthlyPayment = await GetMonthlyPaymentForCheapestMortgage((decimal)mortgageAmount);
+                return new MortgageQuote
+                {
+                    MonthlyPayment = cheapestMonthlyPayment
+                };
+            } 
+            catch (NullReferenceException e)
+            {
+                return null;
+            }
         }
 
         private Boolean IsMortgageRequestIneligible(GetQuotesRequest getQuotesRequest)
@@ -52,6 +58,7 @@ namespace OpenMoney.InterviewExercise.QuoteClients
             {
                 MortgageAmount = mortgageAmount
             };
+
             var returnedQuotes = await _api.GetQuotes(request);
             return returnedQuotes
                 .OrderBy(x=> x.MonthlyPayment)
