@@ -58,7 +58,7 @@ namespace OpenMoney.InterviewExercise.Tests
 
             _homeInsuranceClientMock
                 .Setup(m => m.GetQuote(request))
-                .Returns(new HomeInsuranceQuote
+                .ReturnsAsync(new HomeInsuranceQuote
                 {
                     MonthlyPayment = 600
                 });

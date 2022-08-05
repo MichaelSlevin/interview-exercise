@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Moq;
 using OpenMoney.InterviewExercise.Models;
 using OpenMoney.InterviewExercise.QuoteClients;
@@ -11,12 +12,12 @@ namespace OpenMoney.InterviewExercise.Tests
         private readonly Mock<IThirdPartyHomeInsuranceApi> _apiMock = new();
 
         [Fact]
-        public void GetQuote_ShouldReturnNull_IfHouseValue_Over10Mill()
+        public async Task GetQuote_ShouldReturnNull_IfHouseValue_Over10Mill()
         {
             const decimal houseValue = 10_000_001;
             
             var mortgageClient = new HomeInsuranceQuoteClient(_apiMock.Object);
-            var quote = mortgageClient.GetQuote(new GetQuotesRequest
+            var quote = await mortgageClient.GetQuote(new GetQuotesRequest
             {
                 HouseValue = houseValue
             });
@@ -25,7 +26,7 @@ namespace OpenMoney.InterviewExercise.Tests
         }
 
         [Fact]
-        public void GetQuote_ShouldReturn_AQuote()
+        public async Task GetQuote_ShouldReturn_AQuote()
         {
             const decimal houseValue = 100_000;
 
@@ -38,7 +39,7 @@ namespace OpenMoney.InterviewExercise.Tests
                 });
             
             var mortgageClient = new HomeInsuranceQuoteClient(_apiMock.Object);
-            var quote = mortgageClient.GetQuote(new GetQuotesRequest
+            var quote = await mortgageClient.GetQuote(new GetQuotesRequest
             {
                 HouseValue = houseValue
             });

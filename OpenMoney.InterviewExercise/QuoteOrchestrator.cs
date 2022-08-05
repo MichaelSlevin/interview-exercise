@@ -22,7 +22,7 @@ namespace OpenMoney.InterviewExercise
             return new GetQuotesResponse
             {
                 MortgageQuote = await _mortgageQuoteClient.GetQuote(request),
-                HomeInsuranceQuote = _homeInsuranceQuoteClient.GetQuote(request)
+                HomeInsuranceQuote = await _homeInsuranceQuoteClient.GetQuote(request)
             };
         }
     }

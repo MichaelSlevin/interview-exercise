@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Threading.Tasks;
 using OpenMoney.InterviewExercise.Models;
 using OpenMoney.InterviewExercise.Models.Quotes;
 using OpenMoney.InterviewExercise.ThirdParties;
@@ -7,7 +8,7 @@ namespace OpenMoney.InterviewExercise.QuoteClients
 {
     public interface IHomeInsuranceQuoteClient
     {
-        HomeInsuranceQuote GetQuote(GetQuotesRequest getQuotesRequest);
+        Task<HomeInsuranceQuote> GetQuote(GetQuotesRequest getQuotesRequest);
     }
 
     public class HomeInsuranceQuoteClient : IHomeInsuranceQuoteClient
@@ -21,7 +22,7 @@ namespace OpenMoney.InterviewExercise.QuoteClients
             _api = api;
         }
 
-        public HomeInsuranceQuote GetQuote(GetQuotesRequest getQuotesRequest)
+        public async Task<HomeInsuranceQuote> GetQuote(GetQuotesRequest getQuotesRequest)
         {
             // check if request is eligible
             if (getQuotesRequest.HouseValue > (decimal)10_000_000)
@@ -35,24 +36,10 @@ namespace OpenMoney.InterviewExercise.QuoteClients
                 ContentsValue = contentsValue
             };
 
-            var response = _api.GetQuotes(request).GetAwaiter().GetResult().ToArray();
+            var response = await _api.GetQuotes(request);
 
-            ThirdPartyHomeInsuranceResponse cheapestQuote = null;
-            
-            for (var i = 0; i < response.Length; i++)
-            {
-                var quote = response[i];
-
-                if (cheapestQuote == null)
-                {
-                    cheapestQuote = quote;
-                }
-                else if (cheapestQuote.MonthlyPayment > quote.MonthlyPayment)
-                {
-                    cheapestQuote = quote;
-                }
-            }
-            
+            ThirdPartyHomeInsuranceResponse cheapestQuote = response.OrderBy(x=> x.MonthlyPayment).FirstOrDefault();
+                       
             return new HomeInsuranceQuote
             {
                 MonthlyPayment = (decimal) cheapestQuote.MonthlyPayment
