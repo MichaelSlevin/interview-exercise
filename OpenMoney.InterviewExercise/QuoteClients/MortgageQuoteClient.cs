@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using OpenMoney.InterviewExercise.Models;
@@ -22,43 +23,30 @@ namespace OpenMoney.InterviewExercise.QuoteClients
         
         public async Task<MortgageQuote> GetQuote(GetQuotesRequest getQuotesRequest)
         {
-            // check if mortgage request is eligible
-            var loanToValueFraction = getQuotesRequest.Deposit / getQuotesRequest.HouseValue;
-            if (loanToValueFraction < 0.1d)
+            if (IsMortgageRequestIneligible(getQuotesRequest))
             {
                 return null;
             }
-            //should this be negative?
             var mortgageAmount = getQuotesRequest.HouseValue - getQuotesRequest.Deposit;
             
             var request = new ThirdPartyMortgageRequest
             {
                 MortgageAmount = (decimal) mortgageAmount
             };
+            var response = await _api.GetQuotes(request);
 
-            //This is asynchronous
-            var response = _api.GetQuotes(request).GetAwaiter().GetResult().ToArray();
+            var cheapestQuote = response.OrderBy(x=> x.MonthlyPayment).FirstOrDefault();
 
-            ThirdPartyMortgageResponse cheapestQuote = null;
-            
-            for (var i = 0; i < response.Length; i++)
-            {
-                var quote = response[i];
-
-                if (cheapestQuote == null)
-                {
-                    cheapestQuote = quote;
-                }
-                else if (cheapestQuote.MonthlyPayment > quote.MonthlyPayment)
-                {
-                    cheapestQuote = quote;
-                }
-            }
-            
             return new MortgageQuote
             {
                 MonthlyPayment = (float) cheapestQuote.MonthlyPayment
             };
+        }
+
+        private Boolean IsMortgageRequestIneligible(GetQuotesRequest getQuotesRequest)
+        {   
+            var loanToValueFraction = getQuotesRequest.Deposit / getQuotesRequest.HouseValue;
+            return loanToValueFraction < 0.1d;
         }
     }
 }
