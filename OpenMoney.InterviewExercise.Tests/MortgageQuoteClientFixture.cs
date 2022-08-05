@@ -15,8 +15,8 @@ namespace OpenMoney.InterviewExercise.Tests
         [Fact]
         public async Task GetQuote_ShouldReturnNull_IfHouseValue_Over10Mill()
         {
-            const float deposit = 9_000;
-            const float houseValue = 100_000;
+            const decimal deposit = 9_000;
+            const decimal houseValue = 100_000;
             
             var mortgageClient = new MortgageQuoteClient(_apiMock.Object);
             var quote = await mortgageClient.GetQuote(new GetQuotesRequest
@@ -31,8 +31,8 @@ namespace OpenMoney.InterviewExercise.Tests
         [Fact]
         public async Task GetQuote_ShouldReturn_AQuote()
         {
-            const float deposit = 10_000;
-            const float houseValue = 100_000;
+            const decimal deposit = 10_000;
+            const decimal houseValue = 100_000;
 
             _apiMock
                 .Setup(api => api.GetQuotes(It.IsAny<ThirdPartyMortgageRequest>()))
@@ -54,8 +54,8 @@ namespace OpenMoney.InterviewExercise.Tests
         [Fact]
         public async Task GetQuote_ShouldCall_Api_WithCorrectMortgageValue()
         {
-            const float deposit = 10_000;
-            const float houseValue = 100_000;
+            const decimal deposit = 10_000;
+            const decimal houseValue = 100_000;
             var expected = (decimal)(Math.Round(houseValue - deposit, 2));
 
             _apiMock

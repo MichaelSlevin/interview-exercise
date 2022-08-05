@@ -32,14 +32,14 @@ namespace OpenMoney.InterviewExercise.QuoteClients
             
             return new MortgageQuote
             {
-                MonthlyPayment = (float) cheapestMonthlyPayment
+                MonthlyPayment = cheapestMonthlyPayment
             };
         }
 
         private Boolean IsMortgageRequestIneligible(GetQuotesRequest getQuotesRequest)
         {   
             var loanToValueFraction = getQuotesRequest.Deposit / getQuotesRequest.HouseValue;
-            return loanToValueFraction < 0.1d;
+            return loanToValueFraction < (decimal)0.1;
         }
 
         private async Task<decimal> GetMonthlyPaymentForCheapestMortgage(decimal mortgageAmount)
