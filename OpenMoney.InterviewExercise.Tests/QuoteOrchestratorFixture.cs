@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Moq;
 using OpenMoney.InterviewExercise.Models;
 using OpenMoney.InterviewExercise.Models.Quotes;
@@ -12,7 +13,7 @@ namespace OpenMoney.InterviewExercise.Tests
         private readonly Mock<IHomeInsuranceQuoteClient> _homeInsuranceClientMock = new();
         
         [Fact]
-        public void GetQuotes_ShouldPassCorrectValuesToMortgageClient_AndReturnQuote()
+        public async Task GetQuotes_ShouldPassCorrectValuesToMortgageClient_AndReturnQuote()
         {
             var orchetrator = new QuoteOrchestrator(
                 _homeInsuranceClientMock.Object,
@@ -29,18 +30,18 @@ namespace OpenMoney.InterviewExercise.Tests
 
             _mortgageClientMock
                 .Setup(m => m.GetQuote(request))
-                .Returns(new MortgageQuote
+                .ReturnsAsync(new MortgageQuote
                 {
                     MonthlyPayment = 700
                 });
             
-            var response = orchetrator.GetQuotes(request);
+            var response = await orchetrator.GetQuotes(request);
             
             Assert.Equal(700, response.MortgageQuote.MonthlyPayment);
         }
         
         [Fact]
-        public void GetQuotes_ShouldPassCorrectValuesToHomeInsuranceClient_AndReturnQuote()
+        public async Task GetQuotes_ShouldPassCorrectValuesToHomeInsuranceClient_AndReturnQuote()
         {
             var orchetrator = new QuoteOrchestrator(
                 _homeInsuranceClientMock.Object,
@@ -62,7 +63,7 @@ namespace OpenMoney.InterviewExercise.Tests
                     MonthlyPayment = 600
                 });
             
-            var response = orchetrator.GetQuotes(request);
+            var response = await orchetrator.GetQuotes(request);
             
             Assert.Equal(600, response.HomeInsuranceQuote.MonthlyPayment);
         }
