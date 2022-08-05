@@ -24,12 +24,24 @@ namespace OpenMoney.InterviewExercise.QuoteClients
 
         public async Task<HomeInsuranceQuote> GetQuote(GetQuotesRequest getQuotesRequest)
         {
-            // check if request is eligible
-            if (getQuotesRequest.HouseValue > (decimal)10_000_000)
+            if (IsRequestIneligible(getQuotesRequest))
             {
                 return null;
             }
-            
+
+            return new HomeInsuranceQuote
+            {
+                MonthlyPayment = await GetCheapestMonthlyPaymentForInsurance(getQuotesRequest)
+            };
+        }
+
+        private bool IsRequestIneligible(GetQuotesRequest getQuotesRequest) 
+        {
+            return getQuotesRequest.HouseValue > (decimal)10_000_000;
+        }
+
+        private async Task<decimal> GetCheapestMonthlyPaymentForInsurance(GetQuotesRequest getQuotesRequest)
+        {
             var request = new ThirdPartyHomeInsuranceRequest
             {
                 HouseValue = (decimal) getQuotesRequest.HouseValue,
@@ -38,12 +50,10 @@ namespace OpenMoney.InterviewExercise.QuoteClients
 
             var response = await _api.GetQuotes(request);
 
-            ThirdPartyHomeInsuranceResponse cheapestQuote = response.OrderBy(x=> x.MonthlyPayment).FirstOrDefault();
-                       
-            return new HomeInsuranceQuote
-            {
-                MonthlyPayment = (decimal) cheapestQuote.MonthlyPayment
-            };
+            return (decimal)response
+                .OrderBy(x=> x.MonthlyPayment)
+                .FirstOrDefault()
+                .MonthlyPayment;
         }
     }
 }

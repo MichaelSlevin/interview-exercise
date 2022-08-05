@@ -52,7 +52,7 @@ namespace OpenMoney.InterviewExercise.QuoteClients
             return returnedQuotes
                 .OrderBy(x=> x.MonthlyPayment)
                 .FirstOrDefault()
-                .MonthlyPayment;      
+                .MonthlyPayment;
         }
     }
 }
