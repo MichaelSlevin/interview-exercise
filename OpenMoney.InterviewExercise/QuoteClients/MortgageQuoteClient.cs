@@ -28,18 +28,11 @@ namespace OpenMoney.InterviewExercise.QuoteClients
                 return null;
             }
             var mortgageAmount = getQuotesRequest.HouseValue - getQuotesRequest.Deposit;
+            var cheapestMonthlyPayment = await GetMonthlyPaymentForCheapestMortgage((decimal)mortgageAmount);
             
-            var request = new ThirdPartyMortgageRequest
-            {
-                MortgageAmount = (decimal) mortgageAmount
-            };
-            var response = await _api.GetQuotes(request);
-
-            var cheapestQuote = response.OrderBy(x=> x.MonthlyPayment).FirstOrDefault();
-
             return new MortgageQuote
             {
-                MonthlyPayment = (float) cheapestQuote.MonthlyPayment
+                MonthlyPayment = (float) cheapestMonthlyPayment
             };
         }
 
@@ -47,6 +40,19 @@ namespace OpenMoney.InterviewExercise.QuoteClients
         {   
             var loanToValueFraction = getQuotesRequest.Deposit / getQuotesRequest.HouseValue;
             return loanToValueFraction < 0.1d;
+        }
+
+        private async Task<decimal> GetMonthlyPaymentForCheapestMortgage(decimal mortgageAmount)
+        {
+            var request = new ThirdPartyMortgageRequest
+            {
+                MortgageAmount = mortgageAmount
+            };
+            var returnedQuotes = await _api.GetQuotes(request);
+            return returnedQuotes
+                .OrderBy(x=> x.MonthlyPayment)
+                .FirstOrDefault()
+                .MonthlyPayment;      
         }
     }
 }
