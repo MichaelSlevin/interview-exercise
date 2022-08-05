@@ -70,7 +70,7 @@ namespace OpenMoney.InterviewExercise.Tests
             Assert.Equal(600, response.HomeInsuranceQuote.MonthlyPayment);
         }
 
-        [Fact]
+        [Fact(Skip="This is left in to show how I proved performance improvements")]
         public async Task GetQuotes_Perfomance_Testing()
         {
             var sw = new Stopwatch();

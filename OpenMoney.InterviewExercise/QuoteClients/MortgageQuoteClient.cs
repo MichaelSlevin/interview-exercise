@@ -38,6 +38,10 @@ namespace OpenMoney.InterviewExercise.QuoteClients
 
         private Boolean IsMortgageRequestIneligible(GetQuotesRequest getQuotesRequest)
         {   
+            if(getQuotesRequest.HouseValue > 10_000_000)
+            {
+                return true;
+            }
             var loanToValueFraction = getQuotesRequest.Deposit / getQuotesRequest.HouseValue;
             return loanToValueFraction < (decimal)0.1;
         }
