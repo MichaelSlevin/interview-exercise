@@ -1,5 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using OpenMoney.InterviewExercise.Models;
+using OpenMoney.InterviewExercise.Models.Quotes;
 using OpenMoney.InterviewExercise.QuoteClients;
 
 namespace OpenMoney.InterviewExercise
@@ -19,10 +21,20 @@ namespace OpenMoney.InterviewExercise
 
         public async Task<GetQuotesResponse> GetQuotes(GetQuotesRequest request)
         {
+            var getMortgageQuote = _mortgageQuoteClient.GetQuote(request);
+            var getHomeInsuranceQuote = _homeInsuranceQuoteClient.GetQuote(request);
+
+            var tasks = new List<Task>{
+                getMortgageQuote,
+                getHomeInsuranceQuote
+            };
+
+            await Task.WhenAll(tasks);
+
             return new GetQuotesResponse
             {
-                MortgageQuote = await _mortgageQuoteClient.GetQuote(request),
-                HomeInsuranceQuote = await _homeInsuranceQuoteClient.GetQuote(request)
+                MortgageQuote = await getMortgageQuote,
+                HomeInsuranceQuote = await getHomeInsuranceQuote
             };
         }
     }

@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Moq;
 using OpenMoney.InterviewExercise.Models;
@@ -66,6 +68,48 @@ namespace OpenMoney.InterviewExercise.Tests
             var response = await orchetrator.GetQuotes(request);
             
             Assert.Equal(600, response.HomeInsuranceQuote.MonthlyPayment);
+        }
+
+        [Fact]
+        public async Task GetQuotes_Perfomance_Testing()
+        {
+            var sw = new Stopwatch();
+            var orchetrator = new QuoteOrchestrator(
+                _homeInsuranceClientMock.Object,
+                _mortgageClientMock.Object);
+
+            const decimal deposit = 10_000;
+            const decimal houseValue = 100_000;
+            
+            var request = new GetQuotesRequest
+            {
+                Deposit = deposit,
+                HouseValue = houseValue
+            };
+
+            _homeInsuranceClientMock
+                .Setup(m => m.GetQuote(request))
+                .ReturnsAsync(new HomeInsuranceQuote
+                {
+                    MonthlyPayment = 600
+                }, new TimeSpan( 0, 0, 5));
+
+            _mortgageClientMock
+                .Setup(m => m.GetQuote(request))
+                .ReturnsAsync(new MortgageQuote
+                {
+                    MonthlyPayment = 700
+                }, new TimeSpan( 0, 0, 6));
+            
+            sw.Start();
+
+            var response = await orchetrator.GetQuotes(request);
+
+            sw.Stop();
+            Console.WriteLine($"The number of miliseconds it took to complete this method was: ${sw.ElapsedMilliseconds}");
+            sw.Reset();
+            
+
         }
     }
 }
