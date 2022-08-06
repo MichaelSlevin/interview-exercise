@@ -27,7 +27,7 @@ namespace OpenMoney.InterviewExercise.Tests
             });
             
             Assert.False(quote.Succeeded);
-            Assert.Equal(quote.FailureReason, "Quotes cannot be provided for houses worth over £10 million");
+            Assert.Equal("Quotes cannot be provided for houses worth over £10 million", quote.FailureReason);
             Assert.Null(quote.MonthlyPayment);
         }
 
@@ -130,7 +130,7 @@ namespace OpenMoney.InterviewExercise.Tests
         }
 
         [Fact]
-        public async Task GetQuote_Should_Return_Null_WhenLoanToValueIsBiggerThan_90percent()
+        public async Task GetQuote_Should_Return_AQuoteWithSucceededFalseAndFailureReason_WhenLoanToValueIsBiggerThan_90percent()
         {
             const decimal houseValue = 100;
             const decimal deposit = (houseValue / 10) - 1;
@@ -142,7 +142,9 @@ namespace OpenMoney.InterviewExercise.Tests
                 HouseValue = houseValue
             });
             
-            Assert.Null(quote);
+            Assert.False(quote.Succeeded);
+            Assert.Equal("Loan to value cannot be bigger than 90%", quote.FailureReason);
+            Assert.Null(quote.MonthlyPayment);
         }
 
         [Fact]
@@ -209,7 +211,9 @@ namespace OpenMoney.InterviewExercise.Tests
                 HouseValue = houseValue
             });
             
-            Assert.Null(quote);
+            Assert.False(quote.Succeeded);
+            Assert.Equal("No quotes returned from third party", quote.FailureReason);
+            Assert.Null(quote.MonthlyPayment);
         }
     }
 }

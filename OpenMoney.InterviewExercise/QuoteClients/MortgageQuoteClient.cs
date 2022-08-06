@@ -25,7 +25,11 @@ namespace OpenMoney.InterviewExercise.QuoteClients
         {
             if (!LTVIsEligible(getQuotesRequest))
             {
-                return null;
+                return new MortgageQuote {
+                    Succeeded = false,
+                    FailureReason = "Loan to value cannot be bigger than 90%"
+                };
+                
             }
             if (!(HouseValueIsEligible(getQuotesRequest)))
             {
@@ -45,7 +49,10 @@ namespace OpenMoney.InterviewExercise.QuoteClients
             } 
             catch (NullReferenceException e)
             {
-                return null;
+                return new MortgageQuote {
+                    Succeeded = false,
+                    FailureReason = "No quotes returned from third party"
+                };
             }
         }
 
@@ -56,7 +63,9 @@ namespace OpenMoney.InterviewExercise.QuoteClients
 
         private bool LTVIsEligible(GetQuotesRequest getQuotesRequest)
         {
-            return (getQuotesRequest.Deposit / getQuotesRequest.HouseValue) >= (decimal)0.1;
+            var loanAmount = getQuotesRequest.HouseValue - getQuotesRequest.Deposit;
+            var ltv = loanAmount / getQuotesRequest.HouseValue;
+            return ltv <= (decimal)0.9;
         }
 
         private async Task<decimal> GetMonthlyPaymentForCheapestMortgage(decimal mortgageAmount)
