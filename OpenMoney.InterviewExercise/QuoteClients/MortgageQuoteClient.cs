@@ -23,9 +23,16 @@ namespace OpenMoney.InterviewExercise.QuoteClients
         
         public async Task<MortgageQuote> GetQuote(GetQuotesRequest getQuotesRequest)
         {
-            if (IsMortgageRequestIneligible(getQuotesRequest))
+            if (!LTVIsEligible(getQuotesRequest))
             {
                 return null;
+            }
+            if (!(HouseValueIsEligible(getQuotesRequest)))
+            {
+                return new MortgageQuote {
+                    Succeeded = false,
+                    FailureReason = "Quotes cannot be provided for houses worth over £10 million"
+                };
             }
             try 
             {
@@ -42,14 +49,14 @@ namespace OpenMoney.InterviewExercise.QuoteClients
             }
         }
 
-        private Boolean IsMortgageRequestIneligible(GetQuotesRequest getQuotesRequest)
+        private bool HouseValueIsEligible(GetQuotesRequest getQuotesRequest)
         {   
-            if(getQuotesRequest.HouseValue > 10_000_000)
-            {
-                return true;
-            }
-            var loanToValueFraction = getQuotesRequest.Deposit / getQuotesRequest.HouseValue;
-            return loanToValueFraction < (decimal)0.1;
+            return getQuotesRequest.HouseValue <= 10_000_000;
+        }
+
+        private bool LTVIsEligible(GetQuotesRequest getQuotesRequest)
+        {
+            return (getQuotesRequest.Deposit / getQuotesRequest.HouseValue) >= (decimal)0.1;
         }
 
         private async Task<decimal> GetMonthlyPaymentForCheapestMortgage(decimal mortgageAmount)
@@ -60,10 +67,13 @@ namespace OpenMoney.InterviewExercise.QuoteClients
             };
 
             var returnedQuotes = await _api.GetQuotes(request);
+
             return returnedQuotes
                 .OrderBy(x=> x.MonthlyPayment)
                 .FirstOrDefault()
                 .MonthlyPayment;
         }
+
+        
     }
 }

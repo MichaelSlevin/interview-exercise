@@ -14,7 +14,7 @@ namespace OpenMoney.InterviewExercise.Tests
         private readonly Mock<IThirdPartyMortgageApi> _apiMock = new();
 
         [Fact]
-        public async Task GetQuote_Should_Return_Null_IfHouseValue_Over10Mill()
+        public async Task GetQuote_Should_Return_AQuoteWithSucceededFalseAndFailureReason_IfHouseValue_Over10Mill()
         {
             const decimal deposit = 1_100_000;
             const decimal houseValue = 10_000_001;
@@ -26,7 +26,9 @@ namespace OpenMoney.InterviewExercise.Tests
                 HouseValue = houseValue
             });
             
-            Assert.Null(quote);
+            Assert.False(quote.Succeeded);
+            Assert.Equal(quote.FailureReason, "Quotes cannot be provided for houses worth over £10 million");
+            Assert.Null(quote.MonthlyPayment);
         }
 
         [Fact]
