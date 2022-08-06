@@ -23,36 +23,20 @@ namespace OpenMoney.InterviewExercise.QuoteClients
         
         public async Task<MortgageQuote> GetQuote(GetQuotesRequest getQuotesRequest)
         {
-            if (!LTVIsEligible(getQuotesRequest))
-            {
-                return new MortgageQuote {
-                    Succeeded = false,
-                    FailureReason = "Loan to value cannot be bigger than 90%"
-                };
-                
-            }
+            if (!LTVIsEligible(getQuotesRequest)) 
+                return MortgageQuote.FailedMortgageQuote("Loan to value cannot be bigger than 90%");
+         
             if (!(HouseValueIsEligible(getQuotesRequest)))
-            {
-                return new MortgageQuote {
-                    Succeeded = false,
-                    FailureReason = "Quotes cannot be provided for houses worth over £10 million"
-                };
-            }
+                return MortgageQuote.FailedMortgageQuote("Quotes cannot be provided for houses worth over £10 million");
             try 
             {
                 var mortgageAmount = getQuotesRequest.HouseValue - getQuotesRequest.Deposit;
                 var cheapestMonthlyPayment = await GetMonthlyPaymentForCheapestMortgage((decimal)mortgageAmount);
-                return new MortgageQuote
-                {
-                    MonthlyPayment = cheapestMonthlyPayment
-                };
+                return MortgageQuote.SuccessfulMortgageQuote(cheapestMonthlyPayment);
             } 
             catch (NullReferenceException e)
             {
-                return new MortgageQuote {
-                    Succeeded = false,
-                    FailureReason = "No quotes returned from third party"
-                };
+                return MortgageQuote.FailedMortgageQuote("No quotes returned from third party");
             }
         }
 

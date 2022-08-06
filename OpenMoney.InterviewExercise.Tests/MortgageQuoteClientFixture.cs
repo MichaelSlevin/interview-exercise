@@ -171,7 +171,7 @@ namespace OpenMoney.InterviewExercise.Tests
         }
 
         [Fact]
-        public async Task GetQuote_Should_Return_AQuote_WhenLoanToValueIsLessThan_90percent()
+        public async Task GetQuote_Should_Return_SuccessfulAQuote_WhenLoanToValueIsLessThan_90percent()
         {
             const decimal houseValue = 100;
             const decimal deposit = (houseValue / 10) + 1;
@@ -190,7 +190,8 @@ namespace OpenMoney.InterviewExercise.Tests
                 HouseValue = houseValue
             });
             
-            Assert.Equal(300m, (decimal)quote.MonthlyPayment);
+            Assert.Equal(300m, quote.MonthlyPayment);
+            Assert.True(quote.Succeeded);
         }
 
         [Fact]
