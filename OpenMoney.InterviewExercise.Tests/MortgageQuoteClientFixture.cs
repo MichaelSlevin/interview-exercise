@@ -14,7 +14,7 @@ namespace OpenMoney.InterviewExercise.Tests
         private readonly Mock<IThirdPartyMortgageApi> _apiMock = new();
 
         [Fact]
-        public async Task GetQuote_Should_Return_AQuoteWithSucceededFalseAndFailureReason_IfHouseValue_Over10Mill()
+        public async Task GetQuote_Should_Return_AFailedQuote_IfHouseValue_Over10Mill()
         {
             const decimal deposit = 1_100_000;
             const decimal houseValue = 10_000_001;
@@ -32,7 +32,7 @@ namespace OpenMoney.InterviewExercise.Tests
         }
 
         [Fact]
-        public async Task GetQuote_Should_Return_AQuote_IfHouseValue_Equal10Mill()
+        public async Task GetQuote_Should_Return_ASuccessfulQuote_IfHouseValue_Equal10Mill()
         {
             const decimal deposit = 1_000_000;
             const decimal houseValue = 10_000_00;
@@ -52,10 +52,11 @@ namespace OpenMoney.InterviewExercise.Tests
             });
             
             Assert.Equal(300m, (decimal)quote.MonthlyPayment);
+            Assert.True(quote.Succeeded);
         }
 
         [Fact]
-        public async Task GetQuote_Should_Return_AQuote_IfHouseValue_Under10Mill()
+        public async Task GetQuote_Should_Return_ASuccessfulQuote_IfHouseValue_Under10Mill()
         {
             const decimal deposit = 1_000_000;
             const decimal houseValue = 9_999_999;
@@ -75,6 +76,7 @@ namespace OpenMoney.InterviewExercise.Tests
             });
             
             Assert.Equal(300m, (decimal)quote.MonthlyPayment);
+            Assert.True(quote.Succeeded);
         }
 
         [Fact]
@@ -127,10 +129,11 @@ namespace OpenMoney.InterviewExercise.Tests
             });
             
             Assert.Equal(cheapMortgage.MonthlyPayment, quote.MonthlyPayment);
+            Assert.True(quote.Succeeded);
         }
 
         [Fact]
-        public async Task GetQuote_Should_Return_AQuoteWithSucceededFalseAndFailureReason_WhenLoanToValueIsBiggerThan_90percent()
+        public async Task GetQuote_Should_Return_AFailedQuote_WhenLoanToValueIsBiggerThan_90percent()
         {
             const decimal houseValue = 100;
             const decimal deposit = (houseValue / 10) - 1;
@@ -148,7 +151,7 @@ namespace OpenMoney.InterviewExercise.Tests
         }
 
         [Fact]
-        public async Task GetQuote_Should_Return_AQuote_WhenLoanToValueIsEqualTo_90percent()
+        public async Task GetQuote_Should_Return_ASuccessfulQuote_WhenLoanToValueIsEqualTo_90percent()
         {
             const decimal houseValue = 100;
             const decimal deposit = (houseValue / 10);
@@ -168,10 +171,11 @@ namespace OpenMoney.InterviewExercise.Tests
             });
             
             Assert.Equal(300m, (decimal)quote.MonthlyPayment);
+            Assert.True(quote.Succeeded);
         }
 
         [Fact]
-        public async Task GetQuote_Should_Return_SuccessfulAQuote_WhenLoanToValueIsLessThan_90percent()
+        public async Task GetQuote_Should_Return_ASuccessfulQuote_WhenLoanToValueIsLessThan_90percent()
         {
             const decimal houseValue = 100;
             const decimal deposit = (houseValue / 10) + 1;
@@ -195,7 +199,7 @@ namespace OpenMoney.InterviewExercise.Tests
         }
 
         [Fact]
-        public async Task GetQuote_Should_Return_Null_WhenNoQuotesAreReturned()
+        public async Task GetQuote_Should_Return_AFailedQuote_WhenNoQuotesAreReturned()
         {
 
             const decimal houseValue = 100;

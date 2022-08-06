@@ -24,20 +24,19 @@ namespace OpenMoney.InterviewExercise.QuoteClients
 
         public async Task<HomeInsuranceQuote> GetQuote(GetQuotesRequest getQuotesRequest)
         {
-            if (IsRequestIneligible(getQuotesRequest))
+            if (!HouseValueIsEligible(getQuotesRequest))
             {
-                return null;
+                return HomeInsuranceQuote.FailedHomeInsuranceQuote("Quotes cannot be provided for house worth over £10 million");
             }
 
-            return new HomeInsuranceQuote
-            {
-                MonthlyPayment = await GetCheapestMonthlyPaymentForInsurance(getQuotesRequest)
-            };
+            return HomeInsuranceQuote.SuccessfulHomeInsuranceQuote(
+                await GetCheapestMonthlyPaymentForInsurance(getQuotesRequest)
+            );
         }
 
-        private bool IsRequestIneligible(GetQuotesRequest getQuotesRequest) 
+        private bool HouseValueIsEligible(GetQuotesRequest getQuotesRequest) 
         {
-            return getQuotesRequest.HouseValue > (decimal)10_000_000;
+            return getQuotesRequest.HouseValue <= (decimal)10_000_000;
         }
 
         private async Task<decimal> GetCheapestMonthlyPaymentForInsurance(GetQuotesRequest getQuotesRequest)
